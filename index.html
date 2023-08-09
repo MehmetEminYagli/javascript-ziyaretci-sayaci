@@ -1,16 +1,52 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ziyaretçi Sayacı</title>
+    <title>Visitor Counter</title>
 </head>
 <body>
-    <h1>Hoşgeldiniz!</h1>
-    <p>Toplam ziyaretçi sayısı: <span id="visitorCount">0</span></p>
-    
+    <h1>Visitor Counter</h1>
+    <p id="visitorCount">Ziyaretçi Sayısı: </p>
+    <p id="ipList">IP Listesi: </p>
 
-    <script src="counter.js"></script>
+    <script>
+        window.onload = async function() {
+            try {
+                // Kullanıcının IP adresini al
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                const userIP = data.ip;
+
+                // Tarih ve saat değerini al
+                const currentDate = new Date();
+                const formattedDate = currentDate.toLocaleString();
+
+                // IP adresini kullanarak ziyaretçi bilgisini al
+                let visitorInfo = localStorage.getItem(userIP);
+
+                if (visitorInfo === null) {
+                    // Kullanıcının daha önce hiç gelmediyse yeni bir dizi oluştur
+                    visitorInfo = [];
+                } else {
+                    // Eğer kullanıcı daha önce ziyaret ettiyse mevcut bilgiyi parse et
+                    visitorInfo = JSON.parse(visitorInfo);
+                }
+
+                // Tarih ve IP bilgisini ekleyerek ziyaretçi bilgisini güncelle
+                visitorInfo.push({ date: formattedDate, ip: userIP });
+
+                // Ziyaretçi sayısını güncelle
+                const visitorCount = visitorInfo.length;
+
+                // Ziyaretçi sayısını ve IP bilgisini görüntüle
+                document.getElementById('visitorCount').textContent = `Ziyaretçi Sayısı: ${visitorCount}`;
+                document.getElementById('ipList').textContent = `IP Listesi: ${JSON.stringify(visitorInfo)}`;
+
+                // Güncellenmiş ziyaretçi bilgisini JSON dizesi olarak yerel depolamada sakla
+                localStorage.setItem(userIP, JSON.stringify(visitorInfo));
+            } catch (error) {
+                console.error("Hata oluştu:", error);
+            }
+        }
+    </script>
 </body>
 </html>

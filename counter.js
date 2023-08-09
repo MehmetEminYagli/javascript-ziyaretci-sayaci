@@ -18,7 +18,7 @@ window.onload = function() {
     localStorage.setItem('visitorCount', visitorCount);
 }*/
 
-
+/*
 
 // Sayfa yüklendiğinde çalışacak kod
 window.onload = async function() {
@@ -52,7 +52,7 @@ window.onload = async function() {
         console.error("Hata oluştu:", error);
     }
 }
-
+*/
 
 /* db ile sayac
 // Sayfa yüklendiğinde çalışacak kod
@@ -131,3 +131,44 @@ app.listen(port, () => {
     console.log(`Sunucu ${port} numaralı portta çalışıyor.`);
 });
 */
+
+
+window.onload = async function() {
+    try {
+        // Kullanıcının IP adresini al
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        const userIP = data.ip;
+
+        // Tarih ve saat değerini al
+        const currentDate = new Date();
+        const formattedDate = currentDate.toLocaleString();
+
+        // IP adresini kullanarak ziyaretçi bilgisini al
+        let visitorInfo = localStorage.getItem(userIP);
+
+        if (visitorInfo === null) {
+            // Kullanıcının daha önce hiç gelmediyse yeni bir dizi oluştur
+            visitorInfo = [];
+        } else {
+            // Eğer kullanıcı daha önce ziyaret ettiyse mevcut bilgiyi parse et
+            visitorInfo = JSON.parse(visitorInfo);
+        }
+
+        // Tarih ve IP bilgisini ekleyerek ziyaretçi bilgisini güncelle
+        visitorInfo.push({ date: formattedDate, ip: userIP });
+
+        // Ziyaretçi sayısını güncelle
+        const visitorCount = visitorInfo.length;
+
+        // Ziyaretçi sayısını ve IP bilgisini görüntüle
+        document.getElementById('visitorCount').textContent = `Ziyaretçi Sayısı: ${visitorCount}`;
+        document.getElementById('ipList').textContent = `IP Listesi: ${JSON.stringify(visitorInfo)}`;
+
+        // Güncellenmiş ziyaretçi bilgisini JSON dizesi olarak yerel depolamada sakla
+        localStorage.setItem(userIP, JSON.stringify(visitorInfo));
+    } catch (error) {
+        console.error("Hata oluştu:", error);
+    }
+}
+
